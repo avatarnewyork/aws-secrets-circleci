@@ -6,14 +6,14 @@ import argparse
 import boto3
 
 def main():
-    if "KEY_ID" not in os.environ:
-        raise ValueError('KEY_ID environment variable must be set for AWS Login')
+    if "AWS_ACCESS_KEY_ID" not in os.environ:
+        raise ValueError('AWS_ACCESS_KEY_ID environment variable must be set for AWS Login')
 
-    if "ACCESS_KEY" not in os.environ:
-        raise ValueError('ACCESS_KEY environment variable must be set for AWS Login')
+    if "AWS_SECRET_ACCESS_KEY" not in os.environ:
+        raise ValueError('AWS_SECRET_ACCESS_KEY environment variable must be set for AWS Login')
 
-    aws_key_id = os.environ["KEY_ID"]
-    aws_access_key = os.environ["ACCESS_KEY"]
+    aws_key_id = os.environ["AWS_ACCESS_KEY_ID"]
+    aws_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--secret', help='AWS Secret name', required=True)
@@ -31,9 +31,8 @@ def main():
 
     if args.debugcreds:
         print("Creds debugging:")
-        print("KEY ID is {}".format(aws_key_id))
-        print("ACCESS KEY is {}".format(aws_access_key))
-        print("☣️Please revoke those credentials asap ☣️")
+        print("AWS_ACCESS_KEY_ID is {}".format(aws_key_id))
+        print("AWS_SECRET_ACCESS_KEY is {}".format(aws_access_key))
 
     secret_name = args.secret
     aws_region = args.region
