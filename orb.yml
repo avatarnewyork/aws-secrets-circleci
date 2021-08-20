@@ -1,0 +1,60 @@
+---
+version: 2.1
+description: AWS - Retrieve secrets from AWS Secrets Manager.
+display:
+  source_url: https://github.com/avatarnewyork/aws-secrets-manager
+
+executors:
+  default:
+    description: This image is made to load AWS Secrets Manager secret value to a file which can be sourced by Circle CI.  Updated to handle standard AWS env vars.  All credit goes to pathmotion
+    docker:
+      - image: avatarnewyork/aws-secrets-circleci:<< parameters.tag >>
+    parameters:
+      tag:
+        type: string
+        default: latest
+
+commands:
+  load:
+    description: Load secrets from an AWS Secrets Manager secret entry
+    parameters:
+      secret_name:
+        type: string
+      aws_region:
+        type: string
+        default: us-west-2
+      filename:
+        type: string
+        default: secrets.env
+      create-secrets-directory:
+        type: boolean
+        default: true
+      secrets-directory:
+        type: string
+        default: .secrets
+    steps:
+      - when:
+          condition: << parameters.create-secrets-directory >>
+          steps:
+            run:
+              name: Create secrets directory
+              command: mkdir -p << parameters.secrets-directory >>
+      - run:
+          name: Get secrets from AWS Secrets Manager
+          command: load-aws-secrets --region << parameters.aws_region >> --secret << parameters.secret_name >> --output ./<< parameters.secrets-directory >>/<< parameters.filename >>
+  source:
+    description: Read the AWS secrets manager secrets and source it to $BASH_ENV
+    parameters:
+      secrets-directory:
+        type: string
+        default: .secrets
+      filename:
+        type: string
+        default: secrets.env
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Source secrets from AWS
+          command: cat ./<< parameters.secrets-directory >>/<< parameters.filename >> >> $BASH_ENV
+...
